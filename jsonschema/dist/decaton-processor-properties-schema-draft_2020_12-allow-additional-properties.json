@@ -1,0 +1,85 @@
+{
+  "$schema" : "https://json-schema.org/draft/2020-12/schema",
+  "title" : "Decaton ProcessorProperties",
+  "type" : "object",
+  "additionalProperties" : true,
+  "required" : [ ],
+  "properties" : {
+    "$schema" : {
+      "type" : "string"
+    },
+    "decaton.ignore.keys" : {
+      "type" : "array",
+      "items" : {
+        "type" : "string"
+      },
+      "default" : [ ],
+      "$comment" : "Property definition: decaton.ignore.keys, type: java.util.List"
+    },
+    "decaton.processing.rate.per.partition" : {
+      "type" : "integer",
+      "default" : -1,
+      "$comment" : "Property definition: decaton.processing.rate.per.partition, type: java.lang.Long"
+    },
+    "decaton.partition.concurrency" : {
+      "type" : "integer",
+      "default" : 1,
+      "$comment" : "Property definition: decaton.partition.concurrency, type: java.lang.Integer"
+    },
+    "decaton.max.pending.records" : {
+      "type" : "integer",
+      "default" : 10000,
+      "$comment" : "Property definition: decaton.max.pending.records, type: java.lang.Integer"
+    },
+    "decaton.commit.interval.ms" : {
+      "type" : "integer",
+      "default" : 1000,
+      "$comment" : "Property definition: decaton.commit.interval.ms, type: java.lang.Long"
+    },
+    "decaton.group.rebalance.timeout.ms" : {
+      "type" : "integer",
+      "default" : 1000,
+      "$comment" : "Property definition: decaton.group.rebalance.timeout.ms, type: java.lang.Long"
+    },
+    "decaton.processing.shutdown.timeout.ms" : {
+      "type" : "integer",
+      "default" : 0,
+      "$comment" : "Property definition: decaton.processing.shutdown.timeout.ms, type: java.lang.Long"
+    },
+    "decaton.logging.mdc.enabled" : {
+      "type" : "boolean",
+      "default" : true,
+      "$comment" : "Property definition: decaton.logging.mdc.enabled, type: java.lang.Boolean"
+    },
+    "decaton.client.metrics.micrometer.bound" : {
+      "type" : "boolean",
+      "default" : false,
+      "$comment" : "Property definition: decaton.client.metrics.micrometer.bound, type: java.lang.Boolean"
+    },
+    "decaton.deferred.complete.timeout.ms" : {
+      "type" : "integer",
+      "default" : -1,
+      "$comment" : "Property definition: decaton.deferred.complete.timeout.ms, type: java.lang.Long"
+    },
+    "decaton.processor.threads.termination.timeout.ms" : {
+      "type" : "integer",
+      "default" : 9223372036854775807,
+      "$comment" : "Property definition: decaton.processor.threads.termination.timeout.ms, type: java.lang.Long"
+    },
+    "decaton.per.key.quota.processing.rate" : {
+      "type" : "integer",
+      "default" : -1,
+      "$comment" : "Property definition: decaton.per.key.quota.processing.rate, type: java.lang.Long"
+    },
+    "decaton.retry.task.in.legacy.format" : {
+      "type" : "boolean",
+      "default" : false,
+      "$comment" : "Property definition: decaton.retry.task.in.legacy.format, type: java.lang.Boolean"
+    },
+    "decaton.legacy.parse.fallback.enabled" : {
+      "type" : "boolean",
+      "default" : false,
+      "$comment" : "Property definition: decaton.legacy.parse.fallback.enabled, type: java.lang.Boolean"
+    }
+  }
+}
