@@ -107,6 +107,7 @@ public final class ProcessorPropertiesSchemaGenerator {
 
         var root = MAPPER.createObjectNode();
         root.put("$schema", draft.getIdentifier());
+//        root.put("$id", draft.getIdentifier());
         root.put("title", "Decaton ProcessorProperties");
         root.put("type", "object");
         root.put("additionalProperties", allowAdditional);

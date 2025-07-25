@@ -91,3 +91,12 @@ See [LICENSE](LICENSE) for more detail.
 Below people made great contributions to this project in early days but their name doesn't appear in commit history because we had to erase commit logs when open-sourcing it by security reasons. Thank you so much for your contributions!
 
 [Haruki Okada](https://github.com/ocadaruma), [Wonpill Seo](https://github.com/lovejinstar), [Szuyung Wang](https://github.com/johnny94), [Vincent Pericart](https://github.com/mauhiz), [Ryosuke Hasebe](https://github.com/be-hase), Maytee Chinavanichkit, Junpei Koyama, Yusuke Imai, [Alex Moreno](https://github.com/moleike)
+
+
+## TODO:
+- documentをもう1回読む
+  - example.jsonを読ませたいなー
+- exmaple.jsonを自動でつくる
+  - gradleに書いてあるversionをいれるようにする
+- .pyに説明を書く まともにする
+- .py、dockerのほうがいいかも...
