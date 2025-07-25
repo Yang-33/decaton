@@ -22,6 +22,7 @@ plugins {
 ext {
     noPublish = true
     jacksonVersion = "2.17.0"
+    slf4jVersion = "2.0.12"
     jsonSchemaGeneratorVersion = "4.38.0"
 }
 
@@ -48,6 +49,7 @@ dependencies {
     implementation "org.slf4j:slf4j-api:$slf4jVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.github.victools:jsonschema-generator:$jsonSchemaGeneratorVersion"
+    runtimeOnly "org.slf4j:slf4j-simple:$slf4jVersion"
 }
 
 application {
@@ -62,6 +64,11 @@ tasks.register('generateProcessorSchemas', JavaExec) {
 
     classpath = sourceSets.main.runtimeClasspath
     mainClass.set('com.linecorp.decaton.jsonschema.ProcessorPropertiesSchemaGenerator')
+    jvmArgs(
+            "-Dorg.slf4j.simpleLogger.logFile=System.out",
+            "-Dorg.slf4j.simpleLogger.defaultLogLevel=info"
+    )
+    logging.captureStandardOutput LogLevel.LIFECYCLE
 
     args schemaOutDir.absolutePath
 

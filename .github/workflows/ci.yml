@@ -48,11 +48,11 @@ jobs:
       uses: gradle/actions/setup-gradle@v4
 
     - name: Issue json schema
-      run: ./gradlew ...
-    - name: Check diffs
+      run: ./gradlew jsonschema:build
+    - name: Check no diff
       run: |
         git status --porcelain
         if [[ -n $(git status --porcelain) ]]; then
-          echo "Untracked files or changes detected. Run ..."
+          echo "Untracked files or changes detected. Run ./gradlew jsonschema:build"
           exit 1
         fi

@@ -3,7 +3,6 @@
   "title" : "Decaton ProcessorProperties",
   "type" : "object",
   "additionalProperties" : true,
-  "$comment" : "This schema describes the properties of Decaton ProcessorProperties. It is generated from the ProcessorProperties class and its PropertyDefinitions.",
   "required" : [ ],
   "properties" : {
     "$schema" : {
