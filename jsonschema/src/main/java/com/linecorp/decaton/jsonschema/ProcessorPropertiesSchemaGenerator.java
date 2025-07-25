@@ -110,6 +110,9 @@ public final class ProcessorPropertiesSchemaGenerator {
         root.put("title", "Decaton ProcessorProperties");
         root.put("type", "object");
         root.put("additionalProperties", allowAdditional);
+        root.put("$comment",
+                "This schema describes the properties of Decaton ProcessorProperties. "
+                + "It is generated from the ProcessorProperties class and its PropertyDefinitions.");
         var required = root.putArray("required");
 
         var props = root.putObject("properties");
@@ -124,8 +127,6 @@ public final class ProcessorPropertiesSchemaGenerator {
             } else {
                 required.add(def.name());
             }
-            node.set("$comment",
-                    MAPPER.valueToTree("Property definition: " + def.name() + ", type: " + def.runtimeType().getName()));
             props.set(def.name(), node);
         }
         return root;
