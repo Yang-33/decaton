@@ -30,7 +30,7 @@ for draft in "${DRAFTS[@]}"; do
   for suffix in "${SUFFIXES[@]}"; do
     schema="${SCHEMA_DIR}/decaton-processor-properties-schema-${draft}${suffix}.json"
 
-    [[ -f $schema ]] || { echo "❌ Missing schema: $schema" >&2; exit 1; }
+    [[ -f $schema ]] || { echo "Missing schema: $schema" >&2; exit 1; }
 
     spec=$(spec_opt "$draft")
 
