@@ -98,5 +98,3 @@ Below people made great contributions to this project in early days but their na
   - example.jsonを読ませたいなー
 - exmaple.jsonを自動でつくる
   - gradleに書いてあるversionをいれるようにする
-- .pyに説明を書く まともにする
-- .py、dockerのほうがいいかも...

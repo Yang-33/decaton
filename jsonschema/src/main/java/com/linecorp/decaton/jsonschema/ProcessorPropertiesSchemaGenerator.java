@@ -38,7 +38,6 @@ import java.util.*;
 public final class ProcessorPropertiesSchemaGenerator {
 
     private static final List<SchemaVersion> TARGET_VERSIONS = List.of(
-            SchemaVersion.DRAFT_6,
             SchemaVersion.DRAFT_7,
             SchemaVersion.DRAFT_2019_09,
             SchemaVersion.DRAFT_2020_12
@@ -107,7 +106,6 @@ public final class ProcessorPropertiesSchemaGenerator {
 
         var root = MAPPER.createObjectNode();
         root.put("$schema", draft.getIdentifier());
-//        root.put("$id", draft.getIdentifier());
         root.put("title", "Decaton ProcessorProperties");
         root.put("type", "object");
         root.put("additionalProperties", allowAdditional);
@@ -125,6 +123,13 @@ public final class ProcessorPropertiesSchemaGenerator {
             } else {
                 required.add(def.name());
             }
+            // test
+            node.put("description", String.format(
+                    "Property: %s, Type: %s, Default: %s",
+                    def.name(),
+                    valueType.getTypeName(),
+                    def.defaultValue() != null ? def.defaultValue().toString() : "null"
+            ));
             props.set(def.name(), node);
         }
         return root;
