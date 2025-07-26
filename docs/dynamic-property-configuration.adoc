@@ -110,7 +110,12 @@ Leveraging these schemas in your configuration files gives you two immediate ben
 
 [source,json]
 ----
-include::../jsonschema/dist/central-dogma-decaton-properties-example.json[]
+{
+  "$schema": "https://raw.githubusercontent.com/line/decaton/v9.0.0/jsonschema/dist/decaton-processor-properties-schema-draft_7.json",
+  "decaton.partition.concurrency": 10000,
+  "decaton.processing.rate.per.partition": -1,
+  ...
+}
 ----
 For example, you can use JSON Schema by adding a `$schema` directive at the top of the file as shown above.follows.
 Of course, there may be other ways to use it.

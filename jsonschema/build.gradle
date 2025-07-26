@@ -65,7 +65,8 @@ tasks.register('generateProcessorSchemas', JavaExec) {
     )
     logging.captureStandardOutput LogLevel.LIFECYCLE
 
-    args schemaOutDir.absolutePath
+    def tagVersion = project.version.toString().replaceFirst(/-SNAPSHOT$/, '')
+    args schemaOutDir.absolutePath, tagVersion
 
     outputs.dir schemaOutDir
 }

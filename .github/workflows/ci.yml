@@ -53,7 +53,7 @@ jobs:
       run: ./gradlew jsonschema:build
 
     - name: Validate sample json with schema
-      run: ./scripts/validate-json-schema.py
+      run: ./scripts/validate-jsonschema.sh
 
     - name: Check no diff
       run: |

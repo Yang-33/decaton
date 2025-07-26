@@ -72,8 +72,8 @@ public final class ProcessorPropertiesSchemaGenerator {
      * @throws IOException if an I/O error occurs while writing the schema files.
      */
     public static void main(String[] args) throws IOException {
-        if (args.length < 1) {
-            System.err.println("usage: <outDir>");
+        if (args.length != 2) {
+            System.err.println("usage: <outDir> <decatonVersion>");
             System.exit(1);
         }
         Path outDir = Paths.get(args[0]);
@@ -83,6 +83,8 @@ public final class ProcessorPropertiesSchemaGenerator {
             generateForDraft(outDir, draft, false);
             generateForDraft(outDir, draft, true);
         }
+        String decatonVersion = args[1];
+        generateCentralDogmaJsonExample(outDir, decatonVersion);
     }
 
     private static void generateForDraft(Path dir, SchemaVersion draft, boolean allowAdditional) throws IOException {
@@ -134,5 +136,22 @@ public final class ProcessorPropertiesSchemaGenerator {
         }
         return root;
     }
+
+    private static void generateCentralDogmaJsonExample(Path dir, String version) throws IOException {
+        var root = MAPPER.createObjectNode();
+        root.put("$schema",
+                "https://raw.githubusercontent.com/line/decaton/v%s/jsonschema/dist/decaton-processor-properties-schema-draft_7.json"
+                        .formatted(version));
+
+        for (PropertyDefinition<?> def : ProcessorProperties.PROPERTY_DEFINITIONS) {
+            if (def.defaultValue() != null) {
+                root.set(def.name(), MAPPER.valueToTree(def.defaultValue()));
+            }
+        }
+        Path file = dir.resolve("central-dogma-decaton-properties-example.json");
+        Files.writeString(file, MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(root));
+        log.info("wrote {}", file);
+    }
+
     private ProcessorPropertiesSchemaGenerator() {}
 }

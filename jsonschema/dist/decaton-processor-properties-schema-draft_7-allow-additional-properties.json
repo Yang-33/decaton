@@ -13,59 +13,73 @@
       "items" : {
         "type" : "string"
       },
-      "default" : [ ]
+      "default" : [ ],
+      "description" : "Property: decaton.ignore.keys, Type: java.util.List<java.lang.String>, Default: []"
     },
     "decaton.processing.rate.per.partition" : {
       "type" : "integer",
-      "default" : -1
+      "default" : -1,
+      "description" : "Property: decaton.processing.rate.per.partition, Type: java.lang.Long, Default: -1"
     },
     "decaton.partition.concurrency" : {
       "type" : "integer",
-      "default" : 1
+      "default" : 1,
+      "description" : "Property: decaton.partition.concurrency, Type: java.lang.Integer, Default: 1"
     },
     "decaton.max.pending.records" : {
       "type" : "integer",
-      "default" : 10000
+      "default" : 10000,
+      "description" : "Property: decaton.max.pending.records, Type: java.lang.Integer, Default: 10000"
     },
     "decaton.commit.interval.ms" : {
       "type" : "integer",
-      "default" : 1000
+      "default" : 1000,
+      "description" : "Property: decaton.commit.interval.ms, Type: java.lang.Long, Default: 1000"
     },
     "decaton.group.rebalance.timeout.ms" : {
       "type" : "integer",
-      "default" : 1000
+      "default" : 1000,
+      "description" : "Property: decaton.group.rebalance.timeout.ms, Type: java.lang.Long, Default: 1000"
     },
     "decaton.processing.shutdown.timeout.ms" : {
       "type" : "integer",
-      "default" : 0
+      "default" : 0,
+      "description" : "Property: decaton.processing.shutdown.timeout.ms, Type: java.lang.Long, Default: 0"
     },
     "decaton.logging.mdc.enabled" : {
       "type" : "boolean",
-      "default" : true
+      "default" : true,
+      "description" : "Property: decaton.logging.mdc.enabled, Type: java.lang.Boolean, Default: true"
     },
     "decaton.client.metrics.micrometer.bound" : {
       "type" : "boolean",
-      "default" : false
+      "default" : false,
+      "description" : "Property: decaton.client.metrics.micrometer.bound, Type: java.lang.Boolean, Default: false"
     },
     "decaton.deferred.complete.timeout.ms" : {
       "type" : "integer",
-      "default" : -1
+      "default" : -1,
+      "description" : "Property: decaton.deferred.complete.timeout.ms, Type: java.lang.Long, Default: -1"
     },
     "decaton.processor.threads.termination.timeout.ms" : {
       "type" : "integer",
-      "default" : 9223372036854775807
+      "default" : 9223372036854775807,
+      "description" : "Property: decaton.processor.threads.termination.timeout.ms, Type: java.lang.Long, Default: 9223372036854775807"
     },
     "decaton.per.key.quota.processing.rate" : {
       "type" : "integer",
-      "default" : -1
+      "default" : -1,
+      "description" : "Property: decaton.per.key.quota.processing.rate, Type: java.lang.Long, Default: -1"
     },
     "decaton.retry.task.in.legacy.format" : {
       "type" : "boolean",
-      "default" : false
+      "default" : false,
+      "description" : "Property: decaton.retry.task.in.legacy.format, Type: java.lang.Boolean, Default: false"
     },
     "decaton.legacy.parse.fallback.enabled" : {
       "type" : "boolean",
-      "default" : false
+      "default" : false,
+      "description" : "Property: decaton.legacy.parse.fallback.enabled, Type: java.lang.Boolean, Default: false"
     }
   }
 }
