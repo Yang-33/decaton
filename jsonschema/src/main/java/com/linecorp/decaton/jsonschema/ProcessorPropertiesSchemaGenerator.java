@@ -63,7 +63,7 @@ public final class ProcessorPropertiesSchemaGenerator {
                 PropertyDefinition<?> def = (PropertyDefinition<?>) field.get(null);
                 Type valueType = switch (field.getGenericType()) {
                     case ParameterizedType pt -> pt.getActualTypeArguments()[0];  // List<String> etc
-                    default                 -> def.runtimeType();                // Long.class etc
+                    default -> def.runtimeType();                // Long.class etc
                 };
                 table.put(def, valueType);
             } catch (IllegalAccessException e) {
@@ -94,8 +94,9 @@ public final class ProcessorPropertiesSchemaGenerator {
 
     /**
      * Main method to generate JSON schema files for Decaton ProcessorProperties.
-     * @param args
-     * args[0] should be the output directory where the schema files will be written.
+     *
+     * @param args args[0] should be the output directory where the schema files will be written.
+     *             args[1] should be the Decaton version to be used in the generated schema.
      * @throws IOException if an I/O error occurs while writing the schema files.
      */
     public static void main(String[] args) throws IOException {
@@ -105,16 +106,21 @@ public final class ProcessorPropertiesSchemaGenerator {
         }
         Path outDir = Paths.get(args[0]);
         Files.createDirectories(outDir);
+        String decatonVersion = args[1];
 
         for (SchemaVersion draft : TARGET_VERSIONS) {
-            generateForDraft(outDir, draft, false);
-            generateForDraft(outDir, draft, true);
+            generateForDraft(outDir, draft, false, decatonVersion);
+            generateForDraft(outDir, draft, true, decatonVersion);
         }
-        String decatonVersion = args[1];
         generateCentralDogmaJsonExample(outDir, decatonVersion);
     }
 
-    private static void generateForDraft(Path dir, SchemaVersion draft, boolean allowAdditional) throws IOException {
+    private static void generateForDraft(
+            Path dir,
+            SchemaVersion draft,
+            boolean allowAdditional,
+            String decatonVersion
+    ) throws IOException {
         String fileName = String.format(
                 "decaton-processor-properties-schema-%s%s.json",
                 draft.name().toLowerCase(),
@@ -122,14 +128,18 @@ public final class ProcessorPropertiesSchemaGenerator {
         );
         Path file = dir.resolve(fileName);
 
-        JsonNode schema = buildSchema(draft, allowAdditional);
+        JsonNode schema = buildSchema(draft, allowAdditional, decatonVersion);
         Files.writeString(file, MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(schema));
         log.info("wrote {}", file);
     }
 
-    private static JsonNode buildSchema(SchemaVersion draft, boolean allowAdditional) {
+    private static JsonNode buildSchema(
+            SchemaVersion draft,
+            boolean allowAdditional,
+            String decatonVersion
+    ) {
         Map<PropertyDefinition<?>, Type> typeTable = buildTypeTable();
-        Map<PropertyDefinition<?>, String> docTable  = buildDocTable();
+        Map<PropertyDefinition<?>, String> docTable = buildDocTable();
 
         SchemaGenerator generator = new SchemaGenerator(
                 new SchemaGeneratorConfigBuilder(MAPPER, draft, OptionPreset.PLAIN_JSON)
@@ -138,7 +148,11 @@ public final class ProcessorPropertiesSchemaGenerator {
 
         var root = MAPPER.createObjectNode();
         root.put("$schema", draft.getIdentifier());
-        root.put("title", "Decaton ProcessorProperties");
+        root.put(
+                "title",
+                "Decaton ProcessorProperties (decaton=%s, jsonschema=%s, strict=%s)"
+                        .formatted(decatonVersion, draft.name().toLowerCase(), !allowAdditional)
+        );
         root.put("type", "object");
         root.put("additionalProperties", allowAdditional);
         var required = root.putArray("required");
@@ -155,30 +169,23 @@ public final class ProcessorPropertiesSchemaGenerator {
             } else {
                 required.add(def.name());
             }
-            // test
+
             String doc = docTable.getOrDefault(def, "").replaceAll("\\s+", " ").trim();
-            log.info("Property: {}, doc: {}", def.name(), doc);
-            boolean reloadableYes = doc.toLowerCase().contains("reloadable: yes");
-
-            StringBuilder desc = new StringBuilder();
-            if (!doc.isEmpty()) {
-                desc.append(doc.endsWith(".") ? doc : doc + '.');
-                desc.append(' ');
-            }
-            desc.append("Reloadable: ").append(reloadableYes ? "yes" : "no");
-
-            node.put("description", desc.toString());
+            node.put("description", doc);
 
             props.set(def.name(), node);
         }
         return root;
     }
 
-    private static void generateCentralDogmaJsonExample(Path dir, String version) throws IOException {
+    private static void generateCentralDogmaJsonExample(
+            Path dir,
+            String decatonVersion
+    ) throws IOException {
         var root = MAPPER.createObjectNode();
         root.put("$schema",
                 "https://raw.githubusercontent.com/line/decaton/v%s/jsonschema/dist/decaton-processor-properties-schema-draft_7.json"
-                        .formatted(version));
+                        .formatted(decatonVersion));
 
         for (PropertyDefinition<?> def : ProcessorProperties.PROPERTY_DEFINITIONS) {
             if (def.defaultValue() != null) {
@@ -190,5 +197,6 @@ public final class ProcessorPropertiesSchemaGenerator {
         log.info("wrote {}", file);
     }
 
-    private ProcessorPropertiesSchemaGenerator() {}
+    private ProcessorPropertiesSchemaGenerator() {
+    }
 }
