@@ -18,17 +18,27 @@ package com.linecorp.decaton.jsonschema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.victools.jsonschema.generator.*;
+import com.github.victools.jsonschema.generator.Option;
+import com.github.victools.jsonschema.generator.OptionPreset;
+import com.github.victools.jsonschema.generator.SchemaGenerator;
+import com.github.victools.jsonschema.generator.SchemaGeneratorConfigBuilder;
+import com.github.victools.jsonschema.generator.SchemaVersion;
+import com.github.therapi.runtimejavadoc.FieldJavadoc;
+import com.github.therapi.runtimejavadoc.RuntimeJavadoc;
 import com.linecorp.decaton.processor.runtime.ProcessorProperties;
 import com.linecorp.decaton.processor.runtime.PropertyDefinition;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Generates JSON schema files for Decaton ProcessorProperties.
@@ -44,25 +54,42 @@ public final class ProcessorPropertiesSchemaGenerator {
     );
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
-    private static final Map<PropertyDefinition<?>, Type> TYPE_CACHE = buildTypeCache();
-
-    private static Map<PropertyDefinition<?>, Type> buildTypeCache() {
-        Map<PropertyDefinition<?>, Type> map = new HashMap<>();
+    private static Map<PropertyDefinition<?>, Type> buildTypeTable() {
+        Map<PropertyDefinition<?>, Type> table = new HashMap<>();
         for (Field field : ProcessorProperties.class.getDeclaredFields()) {
             if (!PropertyDefinition.class.isAssignableFrom(field.getType())) continue;
+
             try {
                 PropertyDefinition<?> def = (PropertyDefinition<?>) field.get(null);
-
                 Type valueType = switch (field.getGenericType()) {
                     case ParameterizedType pt -> pt.getActualTypeArguments()[0];  // List<String> etc
                     default                 -> def.runtimeType();                // Long.class etc
                 };
-                map.put(def, valueType);
+                table.put(def, valueType);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException("Unable to access field " + field.getName(), e);
             }
         }
-        return map;
+        return table;
+    }
+
+    private static Map<PropertyDefinition<?>, String> buildDocTable() {
+        Map<PropertyDefinition<?>, String> docs = new HashMap<>();
+        for (Field field : ProcessorProperties.class.getDeclaredFields()) {
+            if (!PropertyDefinition.class.isAssignableFrom(field.getType())) continue;
+
+            try {
+                PropertyDefinition<?> def = (PropertyDefinition<?>) field.get(null);
+                FieldJavadoc fj = RuntimeJavadoc.getJavadoc(field);
+                if (!fj.isEmpty()) {
+                    String txt = fj.getComment().toString().trim();
+                    docs.put(def, txt);
+                }
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException("Unable to access field " + field.getName(), e);
+            }
+        }
+        return docs;
     }
 
     /**
@@ -101,6 +128,9 @@ public final class ProcessorPropertiesSchemaGenerator {
     }
 
     private static JsonNode buildSchema(SchemaVersion draft, boolean allowAdditional) {
+        Map<PropertyDefinition<?>, Type> typeTable = buildTypeTable();
+        Map<PropertyDefinition<?>, String> docTable  = buildDocTable();
+
         SchemaGenerator generator = new SchemaGenerator(
                 new SchemaGeneratorConfigBuilder(MAPPER, draft, OptionPreset.PLAIN_JSON)
                         .without(Option.SCHEMA_VERSION_INDICATOR)
@@ -118,7 +148,7 @@ public final class ProcessorPropertiesSchemaGenerator {
         props.putObject("$schema").put("type", "string");
 
         for (PropertyDefinition<?> def : ProcessorProperties.PROPERTY_DEFINITIONS) {
-            Type valueType = TYPE_CACHE.get(def);
+            Type valueType = typeTable.get(def);
             var node = generator.generateSchema(valueType);
             if (def.defaultValue() != null) {
                 node.set("default", MAPPER.valueToTree(def.defaultValue()));
@@ -126,12 +156,19 @@ public final class ProcessorPropertiesSchemaGenerator {
                 required.add(def.name());
             }
             // test
-            node.put("description", String.format(
-                    "Property: %s, Type: %s, Default: %s",
-                    def.name(),
-                    valueType.getTypeName(),
-                    def.defaultValue() != null ? def.defaultValue().toString() : "null"
-            ));
+            String doc = docTable.getOrDefault(def, "").replaceAll("\\s+", " ").trim();
+            log.info("Property: {}, doc: {}", def.name(), doc);
+            boolean reloadableYes = doc.toLowerCase().contains("reloadable: yes");
+
+            StringBuilder desc = new StringBuilder();
+            if (!doc.isEmpty()) {
+                desc.append(doc.endsWith(".") ? doc : doc + '.');
+                desc.append(' ');
+            }
+            desc.append("Reloadable: ").append(reloadableYes ? "yes" : "no");
+
+            node.put("description", desc.toString());
+
             props.set(def.name(), node);
         }
         return root;
