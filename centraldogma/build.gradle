@@ -81,7 +81,8 @@ tasks.named('build') {
     dependsOn 'generateProcessorSchemas'
 }
 
-tasks.named('test') {
+tasks.named('test', Test).configure {
+    jvmArgs "-Dnet.bytebuddy.experimental=true"
     dependsOn 'generateProcessorSchemas'
 }
 
