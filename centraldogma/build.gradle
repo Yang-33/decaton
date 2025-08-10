@@ -36,7 +36,7 @@ dependencies {
     testRuntimeOnly "ch.qos.logback:logback-classic:1.4.11"
     testImplementation "com.networknt:json-schema-validator:1.5.8"
 
-
+    // For generating JSON Schemas for Decaton ProcessorProperties
     jsonschemaImplementation project(":processor")
     jsonschemaImplementation "org.slf4j:slf4j-api:$jsonSchemaSlf4jVersion"
     jsonschemaImplementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
@@ -83,7 +83,6 @@ tasks.named('build') {
 
 tasks.named('test', Test).configure {
     jvmArgs "-Dnet.bytebuddy.experimental=true"
-    dependsOn 'generateProcessorSchemas'
 }
 
 tasks.named('clean') {

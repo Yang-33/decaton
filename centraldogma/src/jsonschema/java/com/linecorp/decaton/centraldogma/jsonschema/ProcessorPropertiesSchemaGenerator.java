@@ -42,7 +42,8 @@ import java.util.Map;
 
 /**
  * Generates JSON schema files for Decaton ProcessorProperties.
- * The generated schemas are compatible with some JSON Schema
+ * And more, it generates example JSON file for Central Dogma.
+ * The generated schemas are compatible with some JSON Schema.
  */
 @Slf4j
 public final class ProcessorPropertiesSchemaGenerator {
@@ -63,7 +64,7 @@ public final class ProcessorPropertiesSchemaGenerator {
                 PropertyDefinition<?> def = (PropertyDefinition<?>) field.get(null);
                 Type valueType = switch (field.getGenericType()) {
                     case ParameterizedType pt -> pt.getActualTypeArguments()[0];  // List<String> etc
-                    default -> def.runtimeType();                // Long.class etc
+                    default -> def.runtimeType(); // Long.class etc
                 };
                 table.put(def, valueType);
             } catch (IllegalAccessException e) {
