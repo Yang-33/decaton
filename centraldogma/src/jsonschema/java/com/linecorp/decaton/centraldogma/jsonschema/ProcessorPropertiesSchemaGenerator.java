@@ -14,7 +14,7 @@
  * under the License.
  */
 
-package com.linecorp.decaton.jsonschema;
+package com.linecorp.decaton.centraldogma.jsonschema;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -184,7 +184,7 @@ public final class ProcessorPropertiesSchemaGenerator {
     ) throws IOException {
         var root = MAPPER.createObjectNode();
         root.put("$schema",
-                "https://raw.githubusercontent.com/line/decaton/v%s/jsonschema/dist/decaton-processor-properties-central-dogma-schema-draft_7.json"
+                "https://raw.githubusercontent.com/line/decaton/v%s/centraldogma/src/jsonschema/dist/decaton-processor-properties-central-dogma-schema-draft_7.json"
                         .formatted(decatonVersion));
 
         for (PropertyDefinition<?> def : ProcessorProperties.PROPERTY_DEFINITIONS) {

@@ -1,0 +1,4 @@
+[tools]
+java = "corretto-21"
+python = "latest"
+uv = "latest"
