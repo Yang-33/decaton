@@ -58,7 +58,9 @@ public final class ProcessorPropertiesSchemaGenerator {
     private static Map<PropertyDefinition<?>, Type> buildTypeTable() {
         Map<PropertyDefinition<?>, Type> table = new HashMap<>();
         for (Field field : ProcessorProperties.class.getDeclaredFields()) {
-            if (!PropertyDefinition.class.isAssignableFrom(field.getType())) continue;
+            if (!PropertyDefinition.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
 
             try {
                 PropertyDefinition<?> def = (PropertyDefinition<?>) field.get(null);
@@ -77,7 +79,9 @@ public final class ProcessorPropertiesSchemaGenerator {
     private static Map<PropertyDefinition<?>, String> buildDocTable() {
         Map<PropertyDefinition<?>, String> docs = new HashMap<>();
         for (Field field : ProcessorProperties.class.getDeclaredFields()) {
-            if (!PropertyDefinition.class.isAssignableFrom(field.getType())) continue;
+            if (!PropertyDefinition.class.isAssignableFrom(field.getType())) {
+                continue;
+            }
 
             try {
                 PropertyDefinition<?> def = (PropertyDefinition<?>) field.get(null);
