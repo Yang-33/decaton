@@ -6,9 +6,9 @@ import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 
 plugins {
-    id "me.champeau.jmh" version "0.6.6" apply false
+    id "me.champeau.jmh" version "0.7.3" apply false
     id 'com.gradleup.shadow' version '8.3.6' apply false
-    id 'io.freefair.lombok' version '8.2.2' apply false
+    id 'io.freefair.lombok' version '8.14.2' apply false
 }
 
 // After sunsetting OSSRH, we need to publish artifacts on Sonatype Central Publisher Portal, after
@@ -19,7 +19,7 @@ plugins {
 // create deployment on the portal, so we need to upload artifacts to the portal manually by
 // calling API.
 // This task is used to upload artifacts to the portal after publishing artifacts to OSSRH staging service.
-task sonatypeUpload {
+tasks.register('sonatypeUpload') {
     description = "Uploads artifacts to Sonatype Portal from OSSRH staging service."
     doLast {
         def token = findProperty("sonatypeUsername") + ':' + findProperty("sonatypePassword")
@@ -56,8 +56,10 @@ subprojects {
     group = "com.linecorp.decaton"
     version = "${version}" + (snapshot.toBoolean() ? "-SNAPSHOT" : "")
 
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 
     repositories {
         mavenCentral()
@@ -83,10 +85,19 @@ subprojects {
         }
     }
 
+    sourceSets.create('it') {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+        compileClasspath += sourceSets.testFixtures.output
+        runtimeClasspath += sourceSets.testFixtures.output
+    }
+
     configurations {
         shade
         api.extendsFrom(shade)
-        itImplementation.extendsFrom(implementation)
+    }
+    configurations.named('itImplementation') {
+        extendsFrom(configurations.named('implementation').get())
     }
 
     dependencies {
@@ -100,19 +111,12 @@ subprojects {
         itImplementation libs.junitJupiter
     }
 
-    sourceSets.create('it') {
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.output
-        compileClasspath += sourceSets.testFixtures.output
-        runtimeClasspath += sourceSets.testFixtures.output
-    }
-
-    task integrationTest(type: Test) {
+    tasks.register('integrationTest', Test) {
         testClassesDirs = sourceSets.it.output.classesDirs
         classpath = sourceSets.it.runtimeClasspath
     }
 
-    tasks.withType(Test) {
+    tasks.withType(Test).configureEach {
         useJUnitPlatform()
         testLogging {
             // set options for log level LIFECYCLE
@@ -120,11 +124,11 @@ subprojects {
                     TestLogEvent.PASSED,
                     TestLogEvent.SKIPPED,
                     TestLogEvent.STANDARD_OUT
-            exceptionFormat TestExceptionFormat.FULL
-            showExceptions true
-            showCauses true
-            showStackTraces true
-            showStandardStreams false
+            exceptionFormat = TestExceptionFormat.FULL
+            showExceptions = true
+            showCauses = true
+            showStackTraces = true
+            showStandardStreams = false
         }
         def testJavaVersion = findProperty("test.java.major.version")
         if (testJavaVersion != null) {
@@ -141,13 +145,13 @@ subprojects {
                 repositories {
                     maven {
                         if (isReleaseVersion) {
-                            url("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
+                            url = uri("https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/")
                         } else {
-                            url("https://central.sonatype.com/repository/maven-snapshots/")
+                            url = uri("https://central.sonatype.com/repository/maven-snapshots/")
                         }
                         credentials {
-                            username findProperty("sonatypeUsername")
-                            password findProperty("sonatypePassword")
+                            username = findProperty("sonatypeUsername")
+                            password = findProperty("sonatypePassword")
                         }
                     }
                 }
@@ -226,7 +230,7 @@ subprojects {
                 }
             }
             signing {
-                required { isReleaseVersion && gradle.taskGraph.hasTask("publish") }
+                required = isReleaseVersion && gradle.taskGraph.hasTask("publish")
                 sign publishing.publications.mavenJava
             }
         }
@@ -249,26 +253,29 @@ subprojects {
     }
     assemble.dependsOn(shadowJar)
 
-    tasks.withType(PublishToMavenRepository) {
+    tasks.withType(PublishToMavenRepository).configureEach {
         onlyIf {
             !publishOnlyLocal
         }
     }
 
-    task sourcesJar(type: Jar, dependsOn: classes) {
+    def sourcesJar = tasks.register('sourcesJar', Jar) {
+        dependsOn(tasks.named('classes'))
         archiveClassifier.set('sources')
         from sourceSets.main.allSource
     }
 
-    javadoc {
+    tasks.named('javadoc', Javadoc) {
         source = delombok
         options.encoding = 'UTF-8'
         options.locale = 'en_US'
     }
 
-    task javadocJar(type: Jar) {
+    def javadocJar = tasks.register('javadocJar', Jar) {
         archiveClassifier.set('javadoc')
-        from javadoc
+        from tasks.named('javadoc')
     }
-    build.dependsOn(javadoc)
+    tasks.named('build') {
+        dependsOn(tasks.named('javadoc'))
+    }
 }

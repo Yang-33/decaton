@@ -6,8 +6,9 @@ dependencies {
     implementation libs.asciidoctorj
 }
 
-task(validateDocs, dependsOn: 'classes', type: JavaExec) {
-    main = 'com.linecorp.decaton.DocumentChecker'
+tasks.register('validateDocs', JavaExec) {
+    dependsOn(tasks.named('classes'))
+    mainClass.set('com.linecorp.decaton.DocumentChecker')
     classpath = sourceSets.main.runtimeClasspath
-    args project.version, project.projectDir.toString()
+    args(project.version, project.projectDir.toString())
 }
