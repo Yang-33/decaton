@@ -30,8 +30,8 @@ jobs:
         # Java is installed on JAVA_HOME_{java major version}_X64
         # refs: https://github.com/actions/setup-java#install-multiple-jdks
         ./gradlew \
-          -Ptest.java.major.version=${{ matrix.java }}
-          -Porg.gradle.java.installations.fromEnv=JAVA_HOME_${{ matrix.java }}_X64
+          -Ptest.java.major.version=${{ matrix.java }} \
+          -Porg.gradle.java.installations.fromEnv=JAVA_HOME_${{ matrix.java }}_X64 \
           build jmhJar integrationTest
 
   json-schema:
