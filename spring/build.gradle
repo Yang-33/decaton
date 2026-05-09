@@ -49,8 +49,10 @@ dependencies {
     integrationTestSpringBoot2Implementation libs.springBoot2Starter
     integrationTestSpringBoot2Implementation libs.springBoot2StarterTest
     integrationTestSpringBoot2Implementation libs.junitJupiter
+    integrationTestSpringBoot2RuntimeOnly libs.junitPlatformLauncher
     integrationTestSpringBoot3Implementation project(":processor")
     integrationTestSpringBoot3Implementation libs.springBoot3Starter
     integrationTestSpringBoot3Implementation libs.springBoot3StarterTest
     integrationTestSpringBoot3Implementation libs.junitJupiter
+    integrationTestSpringBoot3RuntimeOnly libs.junitPlatformLauncher
 }

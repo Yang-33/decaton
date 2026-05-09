@@ -8,6 +8,7 @@ micrometerTracing = "1.2.4"
 # Keep this explicit because the Freefair Lombok plugin may bring an outdated Lombok version.
 lombok = "1.18.30"
 junit = "5.10.0"
+junitPlatform = "1.10.0"
 hamcrest = "2.2"
 therapi = "0.15.0"
 mockito = "4.11.0"
@@ -36,6 +37,7 @@ slf4jApiJsonschema = { module = "org.slf4j:slf4j-api", version.ref = "jsonSchema
 slf4jSimple = { module = "org.slf4j:slf4j-simple", version.ref = "jsonSchemaSlf4j" }
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
 junitJupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
+junitPlatformLauncher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junitPlatform" }
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoJunitJupiter = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }

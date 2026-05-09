@@ -7,7 +7,7 @@ import java.net.http.HttpResponse
 
 plugins {
     id "me.champeau.jmh" version "0.7.3" apply false
-    id 'com.gradleup.shadow' version '8.3.6' apply false
+    id 'com.gradleup.shadow' version '9.4.1' apply false
     id 'io.freefair.lombok' version '8.14.2' apply false
 }
 
@@ -106,9 +106,11 @@ subprojects {
 
         // Likely be used for most modules
         testImplementation libs.junitJupiter
+        testRuntimeOnly libs.junitPlatformLauncher
         testImplementation libs.mockitoCore
         testImplementation libs.mockitoJunitJupiter
         itImplementation libs.junitJupiter
+        itRuntimeOnly libs.junitPlatformLauncher
     }
 
     tasks.register('integrationTest', Test) {
