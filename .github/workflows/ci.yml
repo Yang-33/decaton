@@ -32,7 +32,7 @@ jobs:
         ./gradlew \
           -Ptest.java.major.version=${{ matrix.java }} \
           -Porg.gradle.java.installations.fromEnv=JAVA_HOME_${{ matrix.java }}_X64 \
-          build jmhJar integrationTest
+          build jmhJar integrationTest publishToMavenLocal
 
   json-schema:
     runs-on: ubuntu-latest
