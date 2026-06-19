@@ -4,8 +4,6 @@ on:
     branches:
     - master
   pull_request:
-    branches:
-    - master
   workflow_dispatch:
 
 jobs:
@@ -16,34 +14,37 @@ jobs:
       matrix:
         java: [8, 11, 17, 21]
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Setup java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
       with:
         distribution: temurin
         java-version: |
           ${{ matrix.java }}
           21
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
 
     - name: Execute test
-      uses: eskatos/gradle-command-action@v1
-      with:
+      run: |
         # Java is installed on JAVA_HOME_{java major version}_X64
-        # refs: https://github.com/actions/setup-java/tree/v4.1.0?tab=readme-ov-file#install-multiple-jdks
-        arguments: |
-          -Ptest.java.major.version=${{ matrix.java }}
-          -Porg.gradle.java.installations.fromEnv=JAVA_HOME_${{ matrix.java }}_X64
-          build jmhJar integrationTest
+        # refs: https://github.com/actions/setup-java#install-multiple-jdks
+        ./gradlew \
+          -Ptest.java.major.version=${{ matrix.java }} \
+          -Porg.gradle.java.installations.fromEnv=JAVA_HOME_${{ matrix.java }}_X64 \
+          build jmhJar integrationTest publishToMavenLocal
 
   json-schema:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     - name: Setup java
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
       with:
         distribution: temurin
         java-version: 21
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@0723195856401067f7a2779048b490ace7a47d7c # v5.0.2
 
     - name: Check no diff
       run: |

@@ -20,12 +20,12 @@ sourceSets.create('integrationTestSpringBoot3') {
     runtimeClasspath += sourceSets.testFixtures.output
 }
 
-task integrationTestSpringBoot2(type: Test) {
+def integrationTestSpringBoot2 = tasks.register('integrationTestSpringBoot2', Test) {
     testClassesDirs = sourceSets.integrationTestSpringBoot2.output.classesDirs
     classpath = sourceSets.integrationTestSpringBoot2.runtimeClasspath
 }
 
-task integrationTestSpringBoot3(type: Test) {
+def integrationTestSpringBoot3 = tasks.register('integrationTestSpringBoot3', Test) {
     testClassesDirs = sourceSets.integrationTestSpringBoot3.output.classesDirs
     classpath = sourceSets.integrationTestSpringBoot3.runtimeClasspath
 
@@ -33,7 +33,9 @@ task integrationTestSpringBoot3(type: Test) {
     enabled = javaLauncher.get().metadata.languageVersion.asInt() >= 17
 }
 
-check.dependsOn(integrationTestSpringBoot2, integrationTestSpringBoot3)
+tasks.named('check') {
+    dependsOn(integrationTestSpringBoot2, integrationTestSpringBoot3)
+}
 
 tasks.named('compileIntegrationTestSpringBoot3Java') {
     // These settings are necessary to resolve boot3 dependencies correctly
@@ -47,8 +49,10 @@ dependencies {
     integrationTestSpringBoot2Implementation libs.springBoot2Starter
     integrationTestSpringBoot2Implementation libs.springBoot2StarterTest
     integrationTestSpringBoot2Implementation libs.junitJupiter
+    integrationTestSpringBoot2RuntimeOnly libs.junitPlatformLauncher
     integrationTestSpringBoot3Implementation project(":processor")
     integrationTestSpringBoot3Implementation libs.springBoot3Starter
     integrationTestSpringBoot3Implementation libs.springBoot3StarterTest
     integrationTestSpringBoot3Implementation libs.junitJupiter
+    integrationTestSpringBoot3RuntimeOnly libs.junitPlatformLauncher
 }
