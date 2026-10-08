@@ -56,6 +56,7 @@ import com.linecorp.decaton.processor.runtime.Property;
 import com.linecorp.decaton.processor.runtime.RetryConfig;
 import com.linecorp.decaton.processor.runtime.StaticPropertySupplier;
 import com.linecorp.decaton.processor.runtime.SubscriptionBuilder;
+import com.linecorp.decaton.processor.runtime.internal.RateLimiter;
 import com.linecorp.decaton.testing.KafkaClusterExtension;
 import com.linecorp.decaton.testing.TestUtils;
 
@@ -143,8 +144,8 @@ public class OffsetResetTest {
         Set<String> processed = ConcurrentHashMap.newKeySet();
         try (ProcessorSubscription subscription = subscription(offsetReset, recording(processed))) {
             produceMarkersUntilProcessed(addedPartition, processed);
-            // If the existing partition were consumed from the beginning,
-            // tasks before the marker would be processed before it
+            // If the existing partition were consumed from the beginning, its old tasks would be processed
+            // before this marker
             produceMarkersUntilProcessed(existingPartition, processed);
         }
 
@@ -160,7 +161,7 @@ public class OffsetResetTest {
     public void testRetryTaskInFlightOnReassignment(OffsetReset offsetReset) throws Exception {
         // scenario:
         //   * a task is retried, and the retry topic partition gets reassigned before the retried task completes
-        //     (e.g. awaiting backoff at the shutdown)
+        //     (e.g. awaiting backoff during shutdown)
         //   * the retry topic partition has no committed offset since no retried task has completed on it
         String retryTopic = createTopic(topic + RetryConfig.DEFAULT_RETRY_TOPIC_SUFFIX);
         TopicPartition originPartition = new TopicPartition(topic, 0);
@@ -170,8 +171,7 @@ public class OffsetResetTest {
         Set<String> processedByFirst = ConcurrentHashMap.newKeySet();
         Set<String> inFlightOnFirst = ConcurrentHashMap.newKeySet();
         // The first subscription always uses the default so that it surely fetches the retried task
-        // regardless of when its position gets determined.
-        // What this test verifies is how the second subscription consumes the partition without committed offset.
+        // regardless of when its position is determined. Only the second one uses the offsetReset under test.
         try (ProcessorSubscription first = subscription(
                 OffsetReset.DEFAULT,
                 builder -> builder.enableRetry(retryConfig).processorsBuilder(
@@ -229,12 +229,16 @@ public class OffsetResetTest {
                                                         shapedTasks.add(new String(record.value(), UTF_8));
                                                         return shapingTopic;
                                                     })
-                                                    .build());
+                                                    .build())
+                // The shaping topic is processed at the per-key quota rate (1 task/sec) unless overridden,
+                // which can't catch up with produceMarkersUntilProcessed producing a marker every second
+                .overrideShapingRate(shapingTopic, StaticPropertySupplier.of(
+                        Property.ofStatic(PerKeyQuotaConfig.shapingRateProperty(shapingTopic), RateLimiter.UNLIMITED))
+                );
 
         Set<String> inFlightOnFirst = ConcurrentHashMap.newKeySet();
         // The first subscription always uses the default so that it surely fetches the shaped tasks
-        // regardless of when its position gets determined.
-        // What this test verifies is how the second subscription consumes the partition without committed offset.
+        // regardless of when its position is determined. Only the second one uses the offsetReset under test.
         try (ProcessorSubscription first = subscription(
                 OffsetReset.DEFAULT,
                 builder -> enablePerKeyQuota.accept(builder.processorsBuilder(
@@ -315,8 +319,8 @@ public class OffsetResetTest {
 
     /**
      * Produce markers until one of them is processed.
-     * The position of a partition without committed offset is determined after the assignment asynchronously,
-     * so a marker produced before that could be skipped by latest.
+     * The position of a partition without committed offset is determined asynchronously after the assignment,
+     * so a marker produced before that could be skipped with latest.
      * Since tasks of the same key are processed in order, all tasks before the processed marker
      * have been processed (or skipped) when this method returns.
      * @return the end offset of the partition
